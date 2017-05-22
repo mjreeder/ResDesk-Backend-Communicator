@@ -1,0 +1,244 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Communicator Microservice
+# during dev, should point to your local machine
+host: localhost:10015
+# basePath prefixes all resource paths
+basePath: /
+#
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /communicator:
+    x-swagger-router-controller: CommunicatorController
+    get:
+      summary: Returns all communication logs
+      description: Returns all communication logs
+      operationId: getCommLogs
+      parameters:
+        - $ref: "#/parameters/AuthHeader"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/CommLogsResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      summary: Creates a new communication log
+      description: Creates a new communication log
+      operationId: createCommLog
+      parameters:
+        - name: commLog
+          in: body
+          description: The communication log
+          required: true
+          schema:
+            $ref: "#/definitions/CommLog"
+        - $ref: "#/parameters/AuthHeader"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/CommLogResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /communicator/{id}:
+    x-swagger-router-controller: CommunicatorController
+    put:
+      summary: Update a communication log
+      description: Update a communication log
+      operationId: updateCommLog
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the comm log
+          required: true
+          type: string
+        - name: commLog
+          in: body
+          description: The communication log
+          required: true
+          schema:
+            $ref: "#/definitions/CommLogUpdate"
+        - $ref: "#/parameters/AuthHeader"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/CommLogsResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      summary: Delete a communication log
+      description: Delete a communication log
+      operationId: deleteCommLog
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the comm log
+          required: true
+          type: string
+        - $ref: "#/parameters/AuthHeader"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/CommLogsResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /communicator/recent:
+    x-swagger-router-controller: CommunicatorController
+    get:
+      summary: Returns recent communication logs
+      description: Returns recent communication logs
+      operationId: getRecentCommLogs
+      parameters:
+        - $ref: "#/parameters/AuthHeader"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/CommLogsResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  CommLog:
+    required:
+      - title
+      - from
+      - to
+      - body
+    description: Comm log item
+    properties:
+      title:
+        type: string
+      from:
+        type: object
+      to:
+        type: array
+        items:
+          type: object
+      body:
+        type: string
+  CommLogUpdate:
+    description: Comm log update item
+    properties:
+      title:
+        type: string
+      from:
+        type: object
+      to:
+        type: array
+        items:
+          type: object
+      body:
+        type: string
+      createdAt:
+        type: string
+      updatedAt:
+        type: string
+      id:
+        type: string
+  CommLogResponse:
+    required:
+      - status
+      - error
+      - description
+      - data
+    properties:
+      status:
+        type: integer
+      error:
+        type: boolean
+      description:
+        type: string
+      data:
+        type: object
+        properties:
+          title:
+            type: string
+          from:
+            type: object
+          to:
+            type: array
+            items:
+              type: object
+          body:
+            type: string
+          createdAt:
+            type: string
+          updatedAt:
+            type: string
+          id:
+            type: string
+  CommLogsResponse:
+    required:
+      - status
+      - error
+      - description
+      - data
+    properties:
+      status:
+        type: integer
+      error:
+        type: boolean
+      description:
+        type: string
+      data:
+        type: array
+        items:
+          type: object
+          properties:
+            title:
+              type: string
+            from:
+              type: object
+            to:
+              type: array
+              items:
+                type: object
+            body:
+              type: string
+            createdAt:
+              type: string
+            updatedAt:
+              type: string
+            id:
+              type: string
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+parameters:
+  AuthHeader:
+    name: Authorization
+    in: header
+    description: the user JWT token
+    required: true
+    type: string
+
